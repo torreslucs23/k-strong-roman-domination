@@ -5,26 +5,24 @@ import pandas as pd
 from itertools import combinations
 
 
-G = nx.cycle_graph(6)
+G = nx.petersen_graph()
 V = list(G.nodes())
 neighbors = {i: list(G.neighbors(i)) for i in V}
-
-
+print(neighbors)
 pos = nx.shell_layout(G)
-
 nx.draw(G, pos, with_labels=True, node_color='lightblue', node_size=500, font_size=15)
 
 # plt.show()
 
 # all atacks patterns with k = 2
-k = 1
+k = 2
 attack_patterns = list(combinations(V, k))  # lista de tuplas
 
 # solver for create a ilp model
 solver = pywraplp.Solver.CreateSolver('SAT')
 
 # contraint with a very large number
-M = 1000
+M = 3
 
 # all vars used in the model
 x = {i: solver.IntVar(0, solver.infinity(), f"x[{i}]") for i in V}
@@ -66,5 +64,6 @@ if status == pywraplp.Solver.OPTIMAL:
     for i in V:
         print(f"x[{i}] = {x[i].solution_value()}  | z[{i}] = {z[i].solution_value()}")
     print("Objective value = ", solver.Objective().Value())
+
 else:
     print("Not find solution")
