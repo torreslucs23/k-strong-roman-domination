@@ -36,6 +36,7 @@ for h, pattern in enumerate(attack_patterns):
     for j in V:
         for i in neighbors[j]:
             y[h, i, j] = solver.BoolVar(f"y[{h},{i},{j}]")
+            print(f"y[{h},{i},{j}]")
 
 # defines z[i] variable
 for i in V:
