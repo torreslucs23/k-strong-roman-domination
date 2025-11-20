@@ -113,7 +113,7 @@ if __name__ == "__main__":
         (7, 9)
     ])
 
-    weights = [1, 1, 0, 0, 0, 0, 0, 2, 2, 2]
+    weights = [0, 0, 0, 0, 0, 0, 0, 3, 3, 3]
     for i in G.nodes():
         print("node: ", i)
         print("neighbors: ", list(G.neighbors(i)))

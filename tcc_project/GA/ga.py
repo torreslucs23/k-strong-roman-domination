@@ -49,6 +49,17 @@ class GeneticAlgorithm:
         population = np.tile(s, (math.ceil(self.population_size / 2), 1))
         return population
     
+    @staticmethod
+    def mutate_population_shuffle(population, mutation_rate):
+        n_individuals = len(population)
+        n_to_mutate = int(np.ceil(n_individuals * mutation_rate))
+        
+        indices_to_mutate = np.random.choice(n_individuals, size=n_to_mutate, replace=False)
+        
+        for i in indices_to_mutate:
+            np.random.shuffle(population[i])
+        
+        return population
 
     
     @staticmethod
@@ -112,6 +123,7 @@ class GeneticAlgorithm:
             valid_individuals.append(individual_fixed)
             fitness_scores.append(np.sum(individual_fixed))
 
+
         valid_individuals = np.array(valid_individuals)
         fitness_scores = np.array(fitness_scores)
 
@@ -147,21 +159,18 @@ class GeneticAlgorithm:
         pop_random = self.initialize_random_population()
         population = np.vstack([pop_greedy, pop_random])
         
-        
-        
-        population = np.sort(population, axis=1)
-        
 
         for _ in range(generations):
             previous_population = population.copy()
 
             population = np.vstack([population, self.crossover_population(population)])
             population = np.vstack([population, self.mutate_population(population)])
+            population = np.vstack([population, self.mutate_population_shuffle(population, self.mutation_rate)])
             
             
             population = self.evaluate_population(population, previous_population=previous_population)
-            print(population)
-            print()
+            # print(population)
+            # print()
             
 
         return population
@@ -180,11 +189,11 @@ def main():
     (7, 9)
 ])
     # G = nx.petersen_graph()
-    population_size = 10
+    population_size = 50
     mutation_rate = 0.1
     crossover_rate = 0.7
     k = 2
-    generations = 5
+    generations = 30
     
     
 
@@ -199,12 +208,10 @@ def main():
 
     final_population = ga.run(generations=generations)
 
-    print("População final (válida):")
-    print(len(final_population))
-
     if len(final_population) > 0:
         print("\nExemplo de indivíduo viável:")
         print(final_population[0])
+        print(f"O valor dele é: {sum(final_population[0])}")
 
 if __name__ == "__main__":
     main()
