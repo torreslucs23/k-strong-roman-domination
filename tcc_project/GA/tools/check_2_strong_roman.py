@@ -89,17 +89,38 @@ def fix_instance(G):
 if __name__ == "__main__":
     
 
-    graph_1_dict = {
-        0: (np.array([1]), 0),
-        1: (np.array([0, 2]), 2),
-        2: (np.array([1, 3]), 0),
-        3: (np.array([2]), 3),
-    }
+    # graph_1_dict = {
+    #     0: (np.array([1]), 0),
+    #     1: (np.array([0, 2]), 2),
+    #     2: (np.array([1, 3]), 0),
+    #     3: (np.array([2]), 3),
+    # }
 
-    g1 = create_graph_from_dict(graph_1_dict)
-    g1 = fix_instance(g1)
+    # g1 = create_graph_from_dict(graph_1_dict)
+    # g1 = fix_instance(g1)
 
-    print(g1.nodes(data=True))
+    # print(g1.nodes(data=True))
+    
+    G = nx.Graph()
+    G.add_edges_from([
+        (0, 1), (0, 4), (0, 5),
+        (1, 2), (1, 6),
+        (2, 3), (2, 7),
+        (3, 4), (3, 8),
+        (4, 9),
+        (5, 7), (5, 8),
+        (6, 8), (6, 9),
+        (7, 9)
+    ])
+
+    weights = [1, 1, 0, 0, 0, 0, 0, 2, 2, 2]
+    for i in G.nodes():
+        print("node: ", i)
+        print("neighbors: ", list(G.neighbors(i)))
+    for node, weight in enumerate(weights):
+        G.nodes[node]['weight'] = weight
+    print([i[1]['weight'] for i in fix_instance(G).nodes(data=True)])
+    print(G.nodes(data=True))
     # print(calculate_power(g1).nodes(data=True))
     # g1 = calculate_power(g1)
     # print(calculate_ap(g1).nodes(data=True))
