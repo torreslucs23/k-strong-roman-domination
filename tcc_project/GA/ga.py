@@ -13,12 +13,10 @@ class GeneticAlgorithm:
         self.fix_instance = fix_instance
 
     def initialize_random_population(self):
-        # random initialization between 1 and 2
-        self.population = np.random.randint(1, 3, size=(self.population_size // 2, self.graph.number_of_nodes()))
+        self.population = np.random.randint(1, 4, size=(self.population_size // 2, self.graph.number_of_nodes()))
         return self.population
     
     def initialize_population_greedy(self):
-        #greedy approach to initialize population from Djukanovic
         n = self.graph.number_of_nodes()
         s = np.zeros(n, dtype=int)
         covered = set()
@@ -33,10 +31,14 @@ class GeneticAlgorithm:
                 g_values[v] = len(neighbors - covered)
 
             v_prime = max(g_values, key=g_values.get)
-            if v_prime in covered:
-                I_v = 1
-            else:
+            
+            uncov_v = set(self.graph.neighbors(v_prime)) | {v_prime}
+            uncov_v = uncov_v - covered
+            
+            if v_prime in uncov_v:
                 I_v = 0
+            else:
+                I_v = 1
 
             l_v_prime = min(self.k + 1, g_values[v_prime] + I_v)
             s[v_prime] = l_v_prime
@@ -117,27 +119,27 @@ class GeneticAlgorithm:
         valid_individuals = valid_individuals[sorted_indices]
         fitness_scores = fitness_scores[sorted_indices]
 
-        elite_size = max(1, int(0.1 * len(previous_population))) if previous_population is not None else 0
-        
-        if previous_population is not None and elite_size > 0:
+        elite_size = int(0.2 * self.population_size)
+        rest_size = self.population_size - elite_size
+
+        if previous_population is not None:
             previous_fitness = np.array([np.sum(ind) for ind in previous_population])
             elite_indices = np.argsort(previous_fitness)[:elite_size]
             elites = previous_population[elite_indices]
-            
-            remaining_size = self.population_size - elite_size
-            if len(valid_individuals) > remaining_size:
-                valid_individuals = valid_individuals[:remaining_size]
-            
-            population_combined = np.vstack([elites, valid_individuals])
         else:
-            if len(valid_individuals) > self.population_size:
-                population_combined = valid_individuals[:self.population_size]
-            else:
-                population_combined = valid_individuals
+            elites = valid_individuals[:elite_size]
 
-        final_fitness = np.array([np.sum(ind) for ind in population_combined])
-        final_sorted_indices = np.argsort(final_fitness)
-        return population_combined[final_sorted_indices]
+        if len(valid_individuals) > rest_size:
+            rest_individuals = valid_individuals[:rest_size]
+        else:
+            rest_individuals = valid_individuals
+
+        new_population = np.vstack([elites, rest_individuals])
+
+        if len(new_population) > self.population_size:
+            new_population = new_population[:self.population_size]
+
+        return new_population
     
     def run(self, generations=50):
         
@@ -155,10 +157,11 @@ class GeneticAlgorithm:
 
             population = np.vstack([population, self.crossover_population(population)])
             population = np.vstack([population, self.mutate_population(population)])
-            # print(population)
-            # print()
+            
             
             population = self.evaluate_population(population, previous_population=previous_population)
+            print(population)
+            print()
             
 
         return population
@@ -167,17 +170,21 @@ class GeneticAlgorithm:
 def main():
     G = nx.Graph()
     G.add_edges_from([
-        (0, 1), (0, 2),
-        (1, 3),
-        (2, 3), (2, 4),
-        (3, 4)
-    ])
-    G = nx.petersen_graph()
+    (0, 1), (0, 4), (0, 5),
+    (1, 2), (1, 6),
+    (2, 3), (2, 7),
+    (3, 4), (3, 8),
+    (4, 9),
+    (5, 7), (5, 8),
+    (6, 8), (6, 9),
+    (7, 9)
+])
+    # G = nx.petersen_graph()
     population_size = 10
     mutation_rate = 0.1
     crossover_rate = 0.7
     k = 2
-    generations = 30
+    generations = 5
     
     
 
