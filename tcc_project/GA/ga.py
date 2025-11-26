@@ -162,6 +162,7 @@ class GeneticAlgorithm:
 
         for _ in range(generations):
             previous_population = population.copy()
+            
 
             population = np.vstack([population, self.crossover_population(population)])
             population = np.vstack([population, self.mutate_population(population)])
@@ -169,6 +170,7 @@ class GeneticAlgorithm:
             
             
             population = self.evaluate_population(population, previous_population=previous_population)
+            print(population[0])
             # print(population)
             # print()
             
@@ -179,21 +181,21 @@ class GeneticAlgorithm:
 def main():
     G = nx.Graph()
     G.add_edges_from([
-    (0, 1), (0, 4), (0, 5),
-    (1, 2), (1, 6),
-    (2, 3), (2, 7),
-    (3, 4), (3, 8),
-    (4, 9),
-    (5, 7), (5, 8),
-    (6, 8), (6, 9),
-    (7, 9)
-])
+        (0, 1), (1, 2), (2, 3),
+        (3, 4), (4, 0),
+        (0, 5), (1, 6),
+        (2, 7), (3, 8),
+        (4, 9),
+        (5, 7), (7, 9),
+        (6, 8), (6, 9),
+        (5, 8)
+    ])
     # G = nx.petersen_graph()
     population_size = 50
     mutation_rate = 0.1
     crossover_rate = 0.7
     k = 2
-    generations = 30
+    generations = 50
     
     
 

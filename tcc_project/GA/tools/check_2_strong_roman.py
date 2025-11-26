@@ -20,6 +20,7 @@ def calculate_power(G):
 
         
 
+# mudar depois de lista para set tanto aqui quanto na função de update
 def calculate_ap(G):
     for node, data in G.nodes(data=True):
         ap = []
@@ -36,7 +37,8 @@ def calculate_ap(G):
  # Because it doesn't need to be checked in other cases, since it is already protected.
 def update_ap_vertex(G, vertex):
     for neighbor in G.neighbors(vertex):
-        G.nodes[neighbor]['ap'] = []
+        if G.nodes[neighbor]['weight'] == 0:
+            G.nodes[neighbor]['ap'].append(vertex)
     return G
     
 
@@ -72,17 +74,22 @@ def fix_instance(G):
                 if G.nodes[neighbor]['power'] >= 1:
                     has_positive_neighbor = True
                     break
+            # Precisamos testar o grau do vizinho
+            # Se o grau for acima de 2 ou 3, rotulamos o peso com 3 e atualizamos os aps dos vizinhos
             if not has_positive_neighbor:
-                G.nodes[node]['weight'] = 1
+                if len(G.nodes[node]) > 3:
+                    G.nodes[node]['weight'] = 3
+                    G = update_ap_vertex(G, node)
+                else:
+                    G.nodes[node]['weight'] = 1
                 
         elif data['weight'] == 2:
             c = 0
             for neighbor in G.neighbors(node):
-                if len(G.nodes[neighbor]['ap']) == 1:
+                if G.nodes[neighbor]['weight'] == 0 and len(G.nodes[neighbor]['ap']) == 1:
                     c += 1
                 if c > 1:
                     G.nodes[node]['weight'] = 3
-                    G = update_ap_vertex(G, node)
                     break
     return G
 
@@ -103,14 +110,14 @@ if __name__ == "__main__":
     
     G = nx.Graph()
     G.add_edges_from([
-        (0, 1), (0, 4), (0, 5),
-        (1, 2), (1, 6),
-        (2, 3), (2, 7),
-        (3, 4), (3, 8),
+        (0, 1), (1, 2), (2, 3),
+        (3, 4), (4, 0),
+        (0, 5), (1, 6),
+        (2, 7), (3, 8),
         (4, 9),
-        (5, 7), (5, 8),
+        (5, 7), (7, 9),
         (6, 8), (6, 9),
-        (7, 9)
+        (5, 8)
     ])
 
     weights = [0, 0, 0, 0, 0, 0, 0, 3, 3, 3]
