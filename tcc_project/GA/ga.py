@@ -170,7 +170,6 @@ class GeneticAlgorithm:
             
             
             population = self.evaluate_population(population, previous_population=previous_population)
-            print(population[0])
             # print(population)
             # print()
             
@@ -190,17 +189,21 @@ def main():
         (6, 8), (6, 9),
         (5, 8)
     ])
+    path_small = nx.path_graph(100)
+    dense_50_high = nx.erdos_renyi_graph(50, 0.7)
+
+
     # G = nx.petersen_graph()
-    population_size = 50
+    population_size = 100
     mutation_rate = 0.1
     crossover_rate = 0.7
     k = 2
-    generations = 50
+    generations = 100
     
     
 
     ga = GeneticAlgorithm(
-        graph=G,
+        graph=dense_50_high,
         population_size=population_size,
         mutation_rate=mutation_rate,
         crossover_rate=crossover_rate,
