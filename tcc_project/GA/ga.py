@@ -3,6 +3,8 @@ import numpy as np
 import networkx as nx
 from tools.check_2_strong_roman import fix_instance as fix_instance
 
+from utils.decorators import simple_decorator
+
 class GeneticAlgorithm:
     def __init__(self, graph, population_size, mutation_rate, crossover_rate, fix_instance, k=2):
         self.graph = graph
@@ -20,11 +22,13 @@ class GeneticAlgorithm:
         n = self.graph.number_of_nodes()
         s = np.zeros(n, dtype=int)
         covered = set()
+        shuffled_nodes = list(self.graph.nodes())
+        np.random.shuffle(shuffled_nodes)
 
         while len(covered) < n:
             g_values = {}
 
-            for v in self.graph.nodes():
+            for v in shuffled_nodes:
                 if v in covered:
                     continue
                 neighbors = set(self.graph.neighbors(v)) | {v}
@@ -153,6 +157,7 @@ class GeneticAlgorithm:
 
         return new_population
     
+    @simple_decorator
     def run(self, generations=50):
         
         pop_greedy = self.initialize_population_greedy()
@@ -164,9 +169,9 @@ class GeneticAlgorithm:
             previous_population = population.copy()
             
 
-            population = np.vstack([population, self.crossover_population(population)])
-            population = np.vstack([population, self.mutate_population(population)])
-            population = np.vstack([population, self.mutate_population_shuffle(population, self.mutation_rate)])
+            population = self.crossover_population(population)
+            population = self.mutate_population(population)
+            population = self.mutate_population_shuffle(population, self.mutation_rate)
             
             
             population = self.evaluate_population(population, previous_population=previous_population)
@@ -191,11 +196,49 @@ def main():
     ])
     path_small = nx.path_graph(100)
     dense_50_high = nx.erdos_renyi_graph(50, 0.7)
+    G_fixed_50 = nx.Graph()
+    edges_50 = [(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0, 8), (0, 9),
+            (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9),
+            (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (2, 8), (2, 9),
+            (3, 4), (3, 5), (3, 6), (3, 7), (3, 8), (3, 9),
+            (4, 5), (4, 6), (4, 7), (4, 8), (4, 9),
+            (5, 6), (5, 7), (5, 8), (5, 9),
+            (6, 7), (6, 8), (6, 9),
+            (7, 8), (7, 9),
+            (8, 9),
+            # Adiciona mais conexões para tornar denso
+            (10, 11), (10, 12), (10, 13), (10, 14), (10, 15), (10, 16), (10, 17), (10, 18), (10, 19),
+            (11, 12), (11, 13), (11, 14), (11, 15), (11, 16), (11, 17), (11, 18), (11, 19),
+            (12, 13), (12, 14), (12, 15), (12, 16), (12, 17), (12, 18), (12, 19),
+            # Conecta os dois clusters
+            (0, 10), (1, 11), (2, 12), (3, 13), (4, 14),
+            # Adiciona algumas diagonais
+            (0, 20), (1, 21), (2, 22), (3, 23), (4, 24),
+            (20, 21), (21, 22), (22, 23), (23, 24), (24, 20),
+            # Liga todos ao centro
+            (25, 0), (25, 1), (25, 2), (25, 3), (25, 4),
+            (25, 10), (25, 11), (25, 12), (25, 13), (25, 14),
+            (25, 20), (25, 21), (25, 22), (25, 23), (25, 24),
+            # Preenche o resto
+            (26, 27), (26, 28), (26, 29), (26, 30),
+            (27, 28), (27, 29), (27, 30),
+            (28, 29), (28, 30),
+            (29, 30),
+            # Conexões aleatórias extras
+            (31, 32), (31, 33), (31, 34), (32, 33), (32, 34), (33, 34),
+            (35, 36), (35, 37), (35, 38), (36, 37), (36, 38), (37, 38),
+            (39, 40), (39, 41), (39, 42), (40, 41), (40, 42), (41, 42),
+            (43, 44), (43, 45), (43, 46), (44, 45), (44, 46), (45, 46),
+            (47, 48), (47, 49), (48, 49),
+            # Liga todos os clusters
+            (0, 26), (10, 31), (20, 35), (25, 39), (30, 43), (34, 47)]
+
+    G_fixed_50.add_edges_from(edges_50)
 
 
     # G = nx.petersen_graph()
     population_size = 100
-    mutation_rate = 0.1
+    mutation_rate = 0.5
     crossover_rate = 0.7
     k = 2
     generations = 100
@@ -203,7 +246,7 @@ def main():
     
 
     ga = GeneticAlgorithm(
-        graph=dense_50_high,
+        graph=G_fixed_50,
         population_size=population_size,
         mutation_rate=mutation_rate,
         crossover_rate=crossover_rate,

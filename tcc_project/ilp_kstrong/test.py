@@ -2,8 +2,8 @@ from itertools import combinations
 from ortools.linear_solver import pywraplp
 import networkx as nx
 
+G = nx.path_graph(10)
 
-G = nx.cycle_graph(6)
 V = list(G.nodes())
 neighbors = {i: list(G.neighbors(i)) for i in V}
 

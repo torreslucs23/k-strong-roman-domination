@@ -5,7 +5,7 @@ import pandas as pd
 from itertools import combinations
 
 
-G = nx.petersen_graph()
+G = nx.path_graph(10)
 V = list(G.nodes())
 neighbors = {i: list(G.neighbors(i)) for i in V}
 print(neighbors)
