@@ -119,6 +119,8 @@ if __name__ == "__main__":
         (6, 8), (6, 9),
         (5, 8)
     ])
+    path_small = nx.path_graph(10)
+    
 
     weights = [0, 0, 0, 0, 0, 0, 0, 3, 3, 3]
     for i in G.nodes():
