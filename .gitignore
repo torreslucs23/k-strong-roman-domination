@@ -8,3 +8,6 @@ wheels/
 
 # Virtual environments
 .venv
+
+tcc_project/GA/DIMACS/
+tcc_project/GA/Harwell-Boeing/
