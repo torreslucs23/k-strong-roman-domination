@@ -6,12 +6,13 @@ from tools.check_2_strong_roman import fix_instance as fix_instance
 from utils.decorators import simple_decorator
 
 class GeneticAlgorithm:
-    def __init__(self, graph, population_size, mutation_rate, crossover_rate, fix_instance, k=2):
+    def __init__(self, graph, population_size, gene_mutation_rate, individual_mutation_rate, crossover_rate, fix_instance, k=2, denominator=2):
         self.graph = graph
         self.population_size = population_size
-        self.mutation_rate = mutation_rate
+        self.gene_mutation_rate = gene_mutation_rate
+        self.individual_mutation_rate = individual_mutation_rate
         self.crossover_rate = crossover_rate
-        self.k = k
+        self.denominator = denominator
         self.fix_instance = fix_instance
 
     def initialize_random_population(self):
@@ -20,50 +21,64 @@ class GeneticAlgorithm:
     
     def initialize_population_greedy(self):
         n = self.graph.number_of_nodes()
-        s = np.zeros(n, dtype=int)
-        covered = set()
-        shuffled_nodes = list(self.graph.nodes())
-        np.random.shuffle(shuffled_nodes)
+        population = []
 
-        while len(covered) < n:
-            g_values = {}
+        for _ in range(math.ceil(self.population_size / self.denominator)):
+            s = np.zeros(n, dtype=int)
+            covered = set()
 
-            for v in shuffled_nodes:
-                if v in covered:
-                    continue
-                neighbors = set(self.graph.neighbors(v)) | {v}
-                g_values[v] = len(neighbors - covered)
+            shuffled_nodes = list(self.graph.nodes())
+            np.random.shuffle(shuffled_nodes)
 
-            v_prime = max(g_values, key=g_values.get)
+            while len(covered) < n:
+                g_values = {}
+
+                for v in shuffled_nodes:
+                    if v in covered:
+                        continue
+                    neighbors = set(self.graph.neighbors(v)) | {v}
+                    g_values[v] = len(neighbors - covered)
+
+                v_prime = max(g_values, key=g_values.get)
+                
+                uncov_v = (set(self.graph.neighbors(v_prime)) | {v_prime}) - covered
+                
+                if v_prime in uncov_v:
+                    I_v = 0
+                else:
+                    I_v = 1
+
+                s[v_prime] = min(3, g_values[v_prime] + I_v)
+
+                covered |= uncov_v
+
+            population.append(s)
             
-            uncov_v = set(self.graph.neighbors(v_prime)) | {v_prime}
-            uncov_v = uncov_v - covered
-            
-            if v_prime in uncov_v:
-                I_v = 0
-            else:
-                I_v = 1
-
-            l_v_prime = min(self.k + 1, g_values[v_prime] + I_v)
-            s[v_prime] = l_v_prime
-
-            neighbors_v_prime = set(self.graph.neighbors(v_prime)) | {v_prime}
-            covered |= neighbors_v_prime
-
-        population = np.tile(s, (math.ceil(self.population_size / 2), 1))
-        return population
+        return np.array(population)
     
-    @staticmethod
-    def mutate_population_shuffle(population, mutation_rate):
-        n_individuals = len(population)
-        n_to_mutate = int(np.ceil(n_individuals * mutation_rate))
-        
-        indices_to_mutate = np.random.choice(n_individuals, size=n_to_mutate, replace=False)
-        
+    def mutate_population(self, population):
+        n_individuals, n_genes = population.shape
+
+        n_to_mutate = int(np.ceil(n_individuals * self.individual_mutation_rate))
+
+        indices_to_mutate = np.random.choice(
+            n_individuals,
+            size=n_to_mutate,
+            replace=False
+        )
+
         for i in indices_to_mutate:
-            np.random.shuffle(population[i])
-        
+            for j in range(n_genes):
+                if np.random.rand() < self.gene_mutation_rate:
+
+                    if population[i, j] == 3:
+                        population[i, j] = 2
+
+                    elif population[i, j] == 1:
+                        population[i, j] = 0
+
         return population
+
 
     
     @staticmethod
@@ -94,24 +109,7 @@ class GeneticAlgorithm:
             new_pop.extend([child1, child2])
         return np.array(new_pop)
     
-    def mutate_population(self, population):
-        n_individuals, n_genes = population.shape
-
-        n_to_mutate = int(np.ceil(n_individuals * 0.30))
-
-        indices_to_mutate = np.random.choice(n_individuals, size=n_to_mutate, replace=False)
-        for i in indices_to_mutate:
-            for j in range(n_genes):
-                
-                if np.random.rand() < self.mutation_rate:
-                    
-                    if population[i, j] == 3:
-                        population[i, j] = 2
-                        
-                    elif population[i, j] == 1:
-                        population[i, j] = 0
-                        
-        return population
+    
         
     def evaluate_population(self, population, previous_population):
         valid_individuals = []
@@ -171,7 +169,6 @@ class GeneticAlgorithm:
 
             population = self.crossover_population(population)
             population = self.mutate_population(population)
-            population = self.mutate_population_shuffle(population, self.mutation_rate)
             
             
             population = self.evaluate_population(population, previous_population=previous_population)
@@ -238,20 +235,21 @@ def main():
 
     # G = nx.petersen_graph()
     population_size = 100
-    mutation_rate = 0.5
+    gene_mutation_rate = 0.5
+    individual_mutation_rate = 0.3
     crossover_rate = 0.7
-    k = 2
     generations = 100
     
     
 
     ga = GeneticAlgorithm(
-        graph=G_fixed_50,
+        graph=nx.petersen_graph(),
         population_size=population_size,
-        mutation_rate=mutation_rate,
+        gene_mutation_rate=gene_mutation_rate,
+        individual_mutation_rate=individual_mutation_rate,
         crossover_rate=crossover_rate,
-        k=k,
-        fix_instance=fix_instance
+        fix_instance=fix_instance,
+        denominator=3
     )
 
     final_population = ga.run(generations=generations)

@@ -123,7 +123,7 @@ def run():
             (0, 26), (10, 31), (20, 35), (25, 39), (30, 43), (34, 47)]
 
     G_fixed_50.add_edges_from(edges_50)
-    problem = Roman2StrongDominationProblem(G_fixed_50)
+    problem = Roman2StrongDominationProblem(nx.petersen_graph())
 
     algorithm = BRKGA(
         n_elites=20,
