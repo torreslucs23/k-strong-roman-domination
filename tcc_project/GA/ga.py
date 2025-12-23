@@ -6,13 +6,12 @@ from tools.check_2_strong_roman import fix_instance as fix_instance
 from utils.decorators import simple_decorator
 
 class GeneticAlgorithm:
-    def __init__(self, graph, population_size, gene_mutation_rate, individual_mutation_rate, crossover_rate, fix_instance, k=2, denominator=2):
+    def __init__(self, graph, population_size, gene_mutation_rate, n_mutants, crossover_rate, fix_instance):
         self.graph = graph
         self.population_size = population_size
         self.gene_mutation_rate = gene_mutation_rate
-        self.individual_mutation_rate = individual_mutation_rate
+        self.n_mutants = n_mutants
         self.crossover_rate = crossover_rate
-        self.denominator = denominator
         self.fix_instance = fix_instance
 
     def initialize_random_population(self):
@@ -23,7 +22,7 @@ class GeneticAlgorithm:
         n = self.graph.number_of_nodes()
         population = []
 
-        for _ in range(math.ceil(self.population_size / self.denominator)):
+        for _ in range(math.ceil(self.population_size / 2)):
             s = np.zeros(n, dtype=int)
             covered = set()
 
@@ -59,7 +58,7 @@ class GeneticAlgorithm:
     def mutate_population(self, population):
         n_individuals, n_genes = population.shape
 
-        n_to_mutate = int(np.ceil(n_individuals * self.individual_mutation_rate))
+        n_to_mutate = int(np.ceil(n_individuals * self.n_mutants))
 
         indices_to_mutate = np.random.choice(
             n_individuals,
@@ -80,7 +79,6 @@ class GeneticAlgorithm:
         return population
 
 
-    
     @staticmethod
     def crossover_single_point(parent1, parent2):
         point = np.random.randint(1, len(parent1) - 1)
@@ -89,26 +87,32 @@ class GeneticAlgorithm:
         return child1, child2
 
     @staticmethod
-    def crossover_uniform(parent1, parent2, prob=0.5):
-        mask = np.random.rand(len(parent1)) < prob
+    def crossover_uniform(parent1, parent2):
+        mask = np.random.rand(len(parent1)) < 0.5
         child1 = np.where(mask, parent1, parent2)
         child2 = np.where(mask, parent2, parent1)
         return child1, child2
 
     def crossover_population(self, pop):
+        pop = pop.copy()
+        np.random.shuffle(pop)
+
         new_pop = []
         crossover_methods = [self.crossover_single_point, self.crossover_uniform]
-        
-        for i in range(0, len(pop), 2):
-            parent1, parent2 = pop[i], pop[(i+1) % len(pop)]
+
+        for i in range(0, len(pop) - 1, 2):
+            parent1, parent2 = pop[i], pop[i + 1]
+
             if np.random.rand() < self.crossover_rate:
                 crossover_fn = np.random.choice(crossover_methods)
                 child1, child2 = crossover_fn(parent1, parent2)
             else:
                 child1, child2 = parent1.copy(), parent2.copy()
+
             new_pop.extend([child1, child2])
+
         return np.array(new_pop)
-    
+
     
         
     def evaluate_population(self, population, previous_population):
@@ -161,19 +165,16 @@ class GeneticAlgorithm:
         pop_greedy = self.initialize_population_greedy()
         pop_random = self.initialize_random_population()
         population = np.vstack([pop_greedy, pop_random])
+        print(len(population))
         
 
         for _ in range(generations):
             previous_population = population.copy()
             
-
             population = self.crossover_population(population)
             population = self.mutate_population(population)
             
-            
             population = self.evaluate_population(population, previous_population=previous_population)
-            # print(population)
-            # print()
             
 
         return population
@@ -236,20 +237,19 @@ def main():
     # G = nx.petersen_graph()
     population_size = 100
     gene_mutation_rate = 0.5
-    individual_mutation_rate = 0.3
+    n_mutants = 0.3
     crossover_rate = 0.7
     generations = 100
     
     
 
     ga = GeneticAlgorithm(
-        graph=nx.petersen_graph(),
+        graph=path_small,
         population_size=population_size,
         gene_mutation_rate=gene_mutation_rate,
-        individual_mutation_rate=individual_mutation_rate,
+        n_mutants=n_mutants,
         crossover_rate=crossover_rate,
         fix_instance=fix_instance,
-        denominator=3
     )
 
     final_population = ga.run(generations=generations)
@@ -261,21 +261,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-                
-
-        
-
-        
-# g = nx.Graph()
-# g.add_nodes_from([0, 1, 2, 3, 4, 5])
-# g.add_edges_from([(0, 1), (1, 2), (2, 3), (3,4), (4,5)])
-# g.nodes[0]['weight'] = 0
-# g.nodes[1]['weight'] = 0
-# g.nodes[2]['weight'] = 1
-# g.nodes[3]['weight'] = 1
-# g.nodes[4]['weight'] = 0
-# ga = GeneticAlgorithm(g, population_size=10, mutation_rate=0.01, crossover_rate=0.7)
-# population = ga.initialize_population_greedy()
-# print(population)
