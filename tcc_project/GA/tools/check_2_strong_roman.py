@@ -84,15 +84,15 @@ if __name__ == "__main__":
         (6, 8), (6, 9),
         (5, 8)
     ])
-    path_small = nx.path_graph(10)
+    path_small = nx.petersen_graph()
     
 
-    weights = [0, 0, 0, 0, 0, 0, 0, 3, 3, 3]
+    weights = [0, 2, 0, 0, 0, 2, 2, 0, 0, 1]
     for i in G.nodes():
         print("node: ", i)
         print("neighbors: ", list(G.neighbors(i)))
     for node, weight in enumerate(weights):
         G.nodes[node]['weight'] = weight
-    print([i[1]['weight'] for i in fix_instance(G).nodes(data=True)])
+    print(sum(i[1]['weight'] for i in fix_instance(G).nodes(data=True)))
     print(G.nodes(data=True))
 
