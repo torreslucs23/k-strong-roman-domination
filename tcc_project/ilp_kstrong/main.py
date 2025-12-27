@@ -5,7 +5,7 @@ import pandas as pd
 import time
 
 
-def solve_two_strong_roman(G, time_limit_seconds=300):
+def solve_two_strong_roman(G, time_limit_seconds=900):
     """
     Solves the 2-Strong Roman Domination problem using OR-Tools
     
@@ -54,17 +54,17 @@ def solve_two_strong_roman(G, time_limit_seconds=300):
         for k in [0, 1, 2]:
             q[u, k] = solver.BoolVar(f"q[{u},{k}]")
     
-    print(f"Variables created: {len(z) + len(a) + len(q)}")
+    print(f"Total number of variables created: {len(z) + len(a) + len(q)}")
     
     # CONSTRAINTS
     
     print("Adding constraints...")
     
-    # Constraint: each vertex receives exactly one label
+    # Constraint R1: each vertex receives exactly one label
     for v in V:
         solver.Add(z[v, 0] + z[v, 1] + z[v, 2] + z[v, 3] == 1)
     
-    # Constraint: each vertex v with f(v)=2 must have at most one neighbor u
+    # Constraint R3: each vertex v with f(v)=2 must have at most one neighbor u
     # with label 0 such that v is the unique protector of u
     for v in V:
         if len(neighbors[v]) > 0:
@@ -83,30 +83,25 @@ def solve_two_strong_roman(G, time_limit_seconds=300):
         # protector_sum = sum of (z[w,2] + z[w,3]) for all neighbors w of u
         protector_sum = solver.Sum(z[w, 2] + z[w, 3] for w in neighbors[u])
         
-        # Constraint: each vertex with label 0 must have at least one protector
-        solver.Add(protector_sum >= z[u, 0])
+        # Constraint R2: each vertex with label 0 must have at least one protector
+        solver.Add(protector_sum >= z[u, 0])        
         
         # Constraints to guarantee that q[u,1] = 1 iff u has exactly 1 protector
-        solver.Add(protector_sum <= 1 + (1 - q[u, 1]) * deg_u)
-        solver.Add(protector_sum >= 1 - (1 - q[u, 1]) * deg_u)
+        solver.Add(q[u, 0] + q[u, 1] + q[u, 2] == 1)            # R4.1
+        solver.Add(protector_sum <= 0 + deg_u * (1 - q[u, 0]))  # R4.2
+        solver.Add(protector_sum <= 1 + (1 - q[u, 1]) * deg_u)  # R4.3 
+        solver.Add(protector_sum >= 1 - (1 - q[u, 1]) * deg_u)  # R4.4
+        solver.Add(protector_sum >= 2 * q[u, 2])                # R4.5
+        solver.Add(protector_sum <= 1 + (deg_u - 1) * q[u, 2])  # R4.6       
         
-        # Constraints: q[u,0] + q[u,1] + q[u,2] = 1
-        solver.Add(q[u, 0] + q[u, 1] + q[u, 2] == 1)
-        
-        # Additional constraints for q variables
-        solver.Add(protector_sum <= 0 + deg_u * (1 - q[u, 0]))
-        solver.Add(protector_sum <= 1 + deg_u * (1 - q[u, 1]))
-        solver.Add(protector_sum >= 1 - deg_u * (1 - q[u, 1]))
-        solver.Add(protector_sum >= 2 * q[u, 2])
-        solver.Add(protector_sum <= 1 + (deg_u - 1) * q[u, 2])
     
     # Constraints: a[u,v] = 1 iff f(u)=0, f(v)=2 and v is unique protector of u
     for u in V:
         for v in neighbors[u]:
-            solver.Add(a[u, v] <= z[u, 0])
-            solver.Add(a[u, v] <= z[v, 2])
-            solver.Add(a[u, v] <= q[u, 1])
-            solver.Add(a[u, v] >= z[u, 0] + z[v, 2] + q[u, 1] - 2)
+            solver.Add(a[u, v] <= z[u, 0])                          # R.5
+            solver.Add(a[u, v] <= z[v, 2])                          # R.6
+            solver.Add(a[u, v] <= q[u, 1])                          # R.7
+            solver.Add(a[u, v] >= z[u, 0] + z[v, 2] + q[u, 1] - 2)  # R.8
     
     print("Constraints added successfully")
     
@@ -203,5 +198,4 @@ def solve_two_strong_roman(G, time_limit_seconds=300):
 
 if __name__ == "__main__":
     
-    solve_two_strong_roman(nx.path_graph(100), time_limit_seconds=60)
-        
+    solve_two_strong_roman(nx.path_graph(100), time_limit_seconds=900)
