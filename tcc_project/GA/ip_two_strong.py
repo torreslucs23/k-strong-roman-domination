@@ -49,17 +49,17 @@ def solve_two_strong_roman(G, time_limit_seconds=900):
         for k in [0, 1, 2]:
             q[u, k] = mdl.binary_var(name=f"q[{u},{k}]")
     
-    print(f"Variables created: {len(z) + len(a) + len(q)}")
+    print(f"Total number of variables created: {len(z) + len(a) + len(q)}")
     
     # CONSTRAINTS
     
     print("Adding constraints...")
     
-    # Constraint: each vertex receives exactly one label
+    # Constraint R1: each vertex receives exactly one label
     for v in V:
         mdl.add_constraint(z[v, 0] + z[v, 1] + z[v, 2] + z[v, 3] == 1)
     
-    # Constraint: each vertex v with f(v)=2 must have at most one neighbor u
+    # Constraint R3: each vertex v with f(v)=2 must have at most one neighbor u
     # with label 0 such that v is the unique protector of u
     for v in V:
         if len(neighbors[v]) > 0:
