@@ -10,3 +10,4 @@ wheels/
 .venv
 
 tcc_project/GA/graphs/
+tcc_project/GA/backup_files/
