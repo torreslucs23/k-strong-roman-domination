@@ -1,0 +1,10 @@
+targetRunner = "./target-runner.py"
+trainInstancesFile = "instances.txt"
+
+maxExperiments = 200
+parallel = 5
+
+logFile = "irace.txt"
+seed = 123
+targetRunnerTimeout = 900
+

@@ -1,0 +1,7 @@
+# GA parameters only
+population_size    "--population_size "    c    (100, 150, 200, 250, 300)
+gene_mutation_rate "--gene_mutation_rate " r    (0.01, 0.5)
+n_mutants          "--n_mutants "          r    (0.1, 0.5)
+crossover_rate     "--crossover_rate "     r    (0.5, 0.9)
+elitism_rate       "--elitism_rate "       r    (0.1, 0.5)
+algorithm          "--algorithm "          c    (ga)

@@ -1,0 +1,47 @@
+../graphs/tunning/10_1.txt
+../graphs/tunning/15_4.txt
+../graphs/tunning/30_2.txt
+../graphs/tunning/45_2.txt
+../graphs/tunning/ad-hoc-net_100_0.3 copy.txt
+../graphs/tunning/ad-hoc-net_100_0.3.txt
+../graphs/tunning/ad-hoc-net_100_0.6 copy 2.txt
+../graphs/tunning/ad-hoc-net_100_0.6 copy.txt
+../graphs/tunning/ad-hoc-net_100_0.6.txt
+../graphs/tunning/ad-hoc-net_150_0.6.txt
+../graphs/tunning/ad-hoc-net_20_0.5 copy.txt
+../graphs/tunning/ad-hoc-net_20_0.5.txt
+../graphs/tunning/ad-hoc-net_30_0.5 copy.txt
+../graphs/tunning/ad-hoc-net_30_0.5.txt
+../graphs/tunning/angers-loire-metropole.txt
+../graphs/tunning/antwerp_geoinstances.txt
+../graphs/tunning/apulia_geoinstances.txt
+../graphs/tunning/apulia.txt
+../graphs/tunning/bcsstk08.txt
+../graphs/tunning/bcsstk28.txt
+../graphs/tunning/bcsstm11.txt
+../graphs/tunning/berlin_geoinstances.txt
+../graphs/tunning/berlin.txt
+../graphs/tunning/bfw398b.txt
+../graphs/tunning/can___96.txt
+../graphs/tunning/cubic_100.txt
+../graphs/tunning/cubic_176.txt
+../graphs/tunning/cubic_376.txt
+../graphs/tunning/cubic_50.txt
+../graphs/tunning/dallas_geoinstances.txt
+../graphs/tunning/denver_geoinstances.txt
+../graphs/tunning/fairbanks.txt
+../graphs/tunning/gn-austin.txt
+../graphs/tunning/gn-birmingham.txt
+../graphs/tunning/gn-brooklyn.txt
+../graphs/tunning/gn-canberra.txt
+../graphs/tunning/gn-chapel-hill.txt
+../graphs/tunning/gn-chesapeake.txt
+../graphs/tunning/gn-cologne.txt
+../graphs/tunning/gn-eindhoven.txt
+../graphs/tunning/gn-enschede.txt
+../graphs/tunning/gn-esztergom.txt
+../graphs/tunning/gn-hamburg.txt
+../graphs/tunning/gn-los-angeles.txt
+../graphs/tunning/homer_dimacs.txt
+../graphs/tunning/miles250.txt
+../graphs/tunning/queen7_7.txt
